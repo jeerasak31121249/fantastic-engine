@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เกมสล็อต - หมุนสนุก คูณ 1-2 เท่า</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+
+        .game-container {
+            background-color: #333;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            width: 500px;
+        }
+
+        .slot-machine {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .slot {
+            width: 60px;
+            height: 60px;
+            background-color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            color: #333;
+            border-radius: 10px;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .spin-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #ff5c8d;
+            color: white;
+            font-size: 24px;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .spin-btn:hover {
+            background-color: #ff4081;
+        }
+
+        .info {
+            margin-top: 20px;
+            color: #333;
+        }
+
+        .balance, .account-info {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .deposit-input, .bet-input {
+            margin-top: 10px;
+            padding: 8px 12px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: 150px;
+            text-align: center;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #ff5c8d;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <div class="account-info" id="account-info">
+            <div>ชื่อบัญชี: <span id="account-name">ผู้เล่น123</span></div>
+            <div class="balance" id="balance">ยอดเงิน: 1000 Coins</div>
+        </div>
+
+        <div class="slot-machine" id="slot-machine">
+            <!-- 5x5 slots will be dynamically generated here -->
+        </div>
+
+        <button class="spin-btn" onclick="spin()">🎰</button>
+
+        <div class="info">
+            <div class="result" id="result">ผลลัพธ์จะโชว์ที่นี่!</div>
+
+            <div>ฝากเงิน:</div>
+            <input type="number" id="deposit-amount" class="deposit-input" placeholder="จำนวนเงิน" />
+            <button onclick="deposit()">ฝากเงิน</button>
+
+            <div>เลือกจำนวนเดิมพัน:</div>
+            <input type="number" id="bet-amount" class="bet-input" placeholder="เดิมพัน" min="1" />
+        </div>
+    </div>
+
+    <script>
+        const fruits = ['🍒', '🍋', '🍉', '🍓', '🍊', '🍍', '🍇']; // รูปผลไม้ที่ใช้ในเกม
+        const payTable = {
+            '🍒': 1,  // คูณ 1 เท่า
+            '🍋': 2,  // คูณ 2 เท่า
+            '🍉': 2,  // คูณ 2 เท่า
+            '🍓': 1,  // คูณ 1 เท่า
+            '🍊': 1,  // คูณ 1 เท่า
+            '🍍': 2,  // คูณ 2 เท่า
+            '🍇': 1   // คูณ 1 เท่า
+        };
+        let balance = 1000; // ยอดเงินเริ่มต้น
+        let betAmount = 0; // จำนวนเงินที่เดิมพันในแต่ละรอบ
+
+        // ฟังก์ชันสร้างสล็อต 5x5
+        function createSlots() {
+            const slotMachine = document.getElementById('slot-machine');
+            slotMachine.innerHTML = ''; // ล้างช่องก่อนสร้างใหม่
+            for (let i = 0; i < 25; i++) {
+                const slot = document.createElement('div');
+                slot.classList.add('slot');
+                slot.textContent = fruits[Math.floor(Math.random() * fruits.length)];
+                slotMachine.appendChild(slot);
+            }
+        }
+
+        createSlots(); // เรียกฟังก์ชันเพื่อสร้างสล็อต 5x5
+
+        // ฟังก์ชันการหมุนสล็อต
+        function spin() {
+            betAmount = parseInt(document.getElementById('bet-amount').value); // รับจำนวนเงินที่ผู้เล่นเดิมพัน
+
+            if (isNaN(betAmount) || betAmount <= 0) {
+                alert("กรุณากรอกจำนวนเงินที่ถูกต้องสำหรับการเดิมพัน!");
+                return;
+            }
+
+            if (betAmount > balance) {
+                alert("ยอดเงินไม่พอสำหรับการเดิมพัน! กรุณาฝากเงินเพิ่ม");
+                return;
+            }
+
+            balance -= betAmount; // หักเงินจากยอดเงินที่เดิมพัน
+            document.getElementById('balance').textContent = `ยอดเงิน: ${balance} Coins`;
+
+            // สุ่มผลลัพธ์ในแต่ละช่อง
+            const slots = document.querySelectorAll('.slot');
+            slots.forEach(slot => {
+                slot.textContent = fruits[Math.floor(Math.random() * fruits.length)];
+            });
+
+            // ตรวจสอบว่ามีการชนะหรือไม่
+            checkWin(slots);
+        }
+
+        // ฟังก์ชันตรวจสอบการชนะ
+        function checkWin(slots) {
+            let winAmount = 0;
+            let winDetected = false;
+
+            // การตรวจสอบแนวนอน (เริ่มจากแถวที่ 1)
+            for (let i = 0; i < 5; i++) {
+                const row = [];
+                for (let j = 0; j < 5; j++) {
+                    row.push(slots[i * 5 + j].textContent);
+                }
+
+                // ตรวจสอบว่ามีผลลัพธ์ที่ตรงกัน 3 ตัวขึ้นไป
+                for (let k = 0; k < row.length - 2; k++) {
+                    if (row[k] === row[k + 1] && row[k + 1] === row[k + 2]) {
+                        winAmount += payTable[row[k]] * betAmount; // คูณรางวัล
+                        winDetected = true;
+                        break; // หยุดหลังจากเจอการชนะในแถว
+                    }
+                }
+            }
+
+            // การตรวจสอบแนวตั้ง
+            for (let i = 0; i < 5; i++) {
+                const column = [];
+                for (let j = 0; j < 5; j++) {
+                    column.push(slots[j * 5 + i].textContent);
+                }
+
+                // ตรวจสอบว่ามีผลลัพธ์ที่ตรงกัน 3 ตัวขึ้นไป
+                for (let k = 0; k < column.length - 2; k++) {
+                    if (column[k] === column[k + 1] && column[k + 1] === column[k + 2]) {
+                        winAmount += payTable[column[k]] * betAmount; // คูณรางวัล
+                        winDetected = true;
+                        break; // หยุดหลังจากเจอการชนะในคอลัมน์
+                    }
+                }
+            }
+
+            if (winDetected) {
+                balance += winAmount; // เพิ่มเงินเมื่อชนะ
+                document.getElementById('balance').textContent = `ยอดเงิน: ${balance} Coins`;
+                document.getElementById('result').textContent = `ชนะ! รางวัล: ${winAmount} Coins`;
+            } else {
+                document.getElementById('result').textContent = "ลองใหม่อีกครั้ง!";
+            }
+
+            // หากหมดเงิน ให้แจ้งผู้เล่น
+            if (balance <= 0) {
+                alert("ยอดเงินหมด! กรุณาฝากเงินใหม่");
+            }
+        }
+
+        // ฟังก์ชันการฝากเงิน
+        function deposit() {
+            const depositAmount = parseInt(document.getElementById('deposit-amount').value);
+            if (isNaN(depositAmount) || depositAmount <= 0) {
+                alert("กรุณากรอกจำนวนเงินที่ถูกต้อง!");
+                return;
+            }
+            balance += depositAmount; // เพิ่มเงินลงในยอดเงิน
+            document.getElementById('balance').textContent = `ยอดเงิน: ${balance} Coins`;
+            document.getElementById('deposit-amount').value = ''; // ล้างช่องกรอกหลังฝากเงิน
+        }
+    </script>
+
+</body>
+</html>
